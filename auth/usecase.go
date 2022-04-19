@@ -1,9 +1,14 @@
 package auth
 
-import "forum/models"
+import (
+	"errors"
+	"forum/models"
+)
+
+var WrongPassword = errors.New("wrong password")
 
 type UserUsecase interface {
-	SignIn(string, string) error
-	SignUp(string, string) (string, error)
-	ParseToken(string) (*models.User, error)
+	SignIn(username, email, password string) (string, error)
+	SignUp(name, email, password string) error
+	ParseByToken(string) (*models.User, error)
 }
