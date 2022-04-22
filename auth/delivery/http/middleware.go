@@ -16,5 +16,4 @@ func NewAuthentication(usecase auth.UserUsecase) *Authentication {
 }
 
 func (a *Authentication) Authentication(next http.Handler) {
-
 }

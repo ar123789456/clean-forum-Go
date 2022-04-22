@@ -18,17 +18,17 @@ func NewUserUsecase(repository auth.UserRepository) *UserUsecase {
 	}
 }
 
-func (uuc *UserUsecase) SignIn(username, email, password string) (string, error) {
+func (uuc *UserUsecase) SignIn(username, email, password string) (string, int, error) {
 	user, err := uuc.repository.Get(username, email)
 	if err != nil {
-		return "", err
+		return "", 0, err
 	}
 	if !CheckPasswordHash(password, user.Password) {
-		return "", auth.WrongPassword
+		return "", 0, auth.WrongPassword
 	}
 	user.UUID = uuid.NewV4().String()
 	err = uuc.repository.Update(*user)
-	return user.UUID, err
+	return user.UUID, int(user.ID), err
 }
 func (uuc *UserUsecase) SignUp(name, email, password string) error {
 	user := models.User{}
@@ -41,7 +41,9 @@ func (uuc *UserUsecase) SignUp(name, email, password string) error {
 	user.Password = hashPass
 	return uuc.repository.Create(user)
 }
-func (uuc *UserUsecase) ParseByToken(string) (*models.User, error)
+func (uuc *UserUsecase) ParseByToken(uuid string) (*models.User, error) {
+	return uuc.repository.GetByToken(uuid)
+}
 
 func HashPassword(password string) (string, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)

@@ -26,7 +26,27 @@ func (ur *UserRepository) Create(user models.User) error {
 func (ur *UserRepository) Get(name, email string) (*models.User, error) {
 	user := models.User{}
 	err := ur.db.QueryRow(
-		"SELECT ID, NicName, Email, Password FROM user WHERE name=?", name).Scan(
+		"SELECT ID, NicName, Email, Password FROM user WHERE NicName=?", name).Scan(
+		&user.ID, &user.Username, &user.Email, &user.Password)
+	if err == nil {
+		return &user, err
+	}
+	err = ur.db.QueryRow(
+		"SELECT ID, NicName, Email, Password FROM user WHERE Email=?", email).Scan(
+		&user.ID, &user.Username, &user.Email, &user.Password)
+	return &user, err
+}
+
+func (ur *UserRepository) Update(user models.User) error {
+	statement, _ := ur.db.Prepare("UPDATE user SET Token=?  WHERE ID = ?;")
+	_, err := statement.Exec(user.UUID, user.ID)
+	return err
+}
+
+func (ur *UserRepository) GetByToken(uuid string) (*models.User, error) {
+	user := models.User{}
+	err := ur.db.QueryRow(
+		"SELECT ID, NicName, Email, Password FROM user WHERE NicName=?", uuid).Scan(
 		&user.ID, &user.Username, &user.Email, &user.Password)
 	return &user, err
 }

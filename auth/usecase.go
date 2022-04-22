@@ -8,7 +8,7 @@ import (
 var WrongPassword = errors.New("wrong password")
 
 type UserUsecase interface {
-	SignIn(username, email, password string) (string, error)
+	SignIn(username, email, password string) (string, int, error)
 	SignUp(name, email, password string) error
 	ParseByToken(string) (*models.User, error)
 }
