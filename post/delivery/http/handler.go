@@ -2,7 +2,6 @@ package http
 
 import (
 	"encoding/json"
-	"fmt"
 	"forum/models"
 	"forum/post"
 	"net/http"
@@ -55,7 +54,7 @@ func (h *Handler) NewPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	c, err := r.Cookie("user_id")
-	fmt.Println(c.Value, err)
+
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusUnauthorized)
 		return
