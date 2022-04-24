@@ -7,6 +7,7 @@ import (
 
 	//handlers
 	handlerAuth "forum/auth/delivery/http"
+	handlerComment "forum/comment/delivery/http"
 	handlerLike "forum/like/delivery/http"
 	handlerPost "forum/post/delivery/http"
 
@@ -20,6 +21,7 @@ func Run() {
 	handlerAuth.RegisterAuth(db, mux)
 	handlerPost.RegisterPost(db, mux)
 	handlerLike.RegisterLike(db, mux)
+	handlerComment.RegisterPost(db, mux)
 
 	err := http.ListenAndServe("localhost:8080", mux)
 	log.Println(err)
@@ -34,6 +36,7 @@ func InitDB() *sql.DB {
 	migrate(DB, Posts)
 	migrate(DB, LikePost)
 	migrate(DB, LikeComment)
+	migrate(DB, Comments)
 	return DB
 }
 
@@ -92,5 +95,18 @@ CREATE TABLE IF NOT EXISTS "likes_comment" (
 	"liked"	INTEGER NOT NULL DEFAULT 0,
 	FOREIGN KEY("id_user") REFERENCES "user"("ID"),
 	FOREIGN KEY("id_comment") REFERENCES "comments"("id")
+);
+`
+
+const Comments string = `
+CREATE TABLE IF NOT EXISTS "comments" (
+	"id"	INTEGER NOT NULL UNIQUE,
+	"text"	TEXT NOT NULL,
+	"id_user"	INTEGER NOT NULL,
+	"id_post"	INTEGER NOT NULL,
+	"create_at"	TEXT NOT NULL,
+	FOREIGN KEY("id_post") REFERENCES "posts"("id"),
+	FOREIGN KEY("id_user") REFERENCES "user"("ID"),
+	PRIMARY KEY("id" AUTOINCREMENT)
 );
 `
