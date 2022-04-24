@@ -52,8 +52,25 @@ func (pr *PostRepository) GetAll() ([]models.Post, error) {
 	}
 	return posts, err
 }
-func (pr *PostRepository) GetByLike() ([]models.Post, error) {
-	return []models.Post{}, nil
+func (pr *PostRepository) GetByLike(userid int) ([]models.Post, error) {
+	rows, err := pr.db.Query("SELECT * FROM posts , likes_posts WHERE posts.id = likes_posts.id_post AND likes_posts.id_user = ?", userid)
+	var posts []models.Post
+	if err == nil {
+		for rows.Next() {
+			var currentPost models.Post
+			rows.Scan(
+				&currentPost.ID,
+				&currentPost.Title,
+				&currentPost.Content,
+				&currentPost.Creat_at,
+				&currentPost.Update_to,
+				&currentPost.UserID,
+			)
+			posts = append(posts, currentPost)
+		}
+		return posts, err
+	}
+	return posts, err
 }
 func (pr *PostRepository) GetUserPost(id int64) ([]models.Post, error) {
 	rows, err := pr.db.Query("SELECT * FROM posts WHERE id_user=?;", id)

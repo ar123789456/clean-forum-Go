@@ -37,6 +37,8 @@ func InitDB() *sql.DB {
 	migrate(DB, LikePost)
 	migrate(DB, LikeComment)
 	migrate(DB, Comments)
+	migrate(DB, Tags)
+	migrate(DB, TagPosts)
 	return DB
 }
 
@@ -107,6 +109,25 @@ CREATE TABLE IF NOT EXISTS "comments" (
 	"create_at"	TEXT NOT NULL,
 	FOREIGN KEY("id_post") REFERENCES "posts"("id"),
 	FOREIGN KEY("id_user") REFERENCES "user"("ID"),
+	PRIMARY KEY("id" AUTOINCREMENT)
+);
+`
+
+const Tags string = `
+CREATE TABLE IF NOT EXISTS "tags" (
+	"id"	INTEGER NOT NULL UNIQUE,
+	"title"	TEXT NOT NULL UNIQUE,
+	PRIMARY KEY("id" AUTOINCREMENT)
+);
+`
+
+const TagPosts string = `
+CREATE TABLE  IF NOT EXISTS "tag_posts" (
+	"id"	INTEGER NOT NULL UNIQUE,
+	"id_tag"	INTEGER NOT NULL,
+	"id_post"	INTEGER NOT NULL,
+	FOREIGN KEY("id_post") REFERENCES "posts"("id"),
+	FOREIGN KEY("id_tag") REFERENCES "tags"("id"),
 	PRIMARY KEY("id" AUTOINCREMENT)
 );
 `

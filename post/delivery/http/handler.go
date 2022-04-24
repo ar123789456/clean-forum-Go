@@ -21,16 +21,23 @@ func NewHandler(usecase post.PostUseCase) *Handler {
 
 type inputPost struct {
 	Title      string `json:"title"`
-	CategoryID []int  `json:"category"`
+	CategoryID int    `json:"category"`
+	Tags       []tag  `json:"tags"`
 	Content    string `json:"content"`
 	ID         int    `json:"id"`
 	UserID     int    `json:"user_id"`
 	Creat_at   string `json:"create_at"`
 }
 
+type tag struct {
+	Id    int    `json:"id"`
+	Title string `json:"title"`
+}
+
 type outputPost struct {
 	Title      string `json:"title"`
-	CategoryID []int  `json:"category"`
+	CategoryID int    `json:"category"`
+	Tags       []tag  `json:"tags"`
 	Content    string `json:"content"`
 	ID         int    `json:"id"`
 	UserID     int    `json:"user_id"`
@@ -126,12 +133,22 @@ func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 	w.Write(result)
 }
 
+type userLike struct {
+	UserID int `json:"user_id"`
+}
+
 func (h *Handler) GetByLike(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		return
 	}
-	posts, err := h.usecase.GetByLike()
+	var p userLike
+	err := json.NewDecoder(r.Body).Decode(&p)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	posts, err := h.usecase.GetByLike(p.UserID)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
@@ -176,13 +193,31 @@ func (h *Handler) GetUserPost(w http.ResponseWriter, r *http.Request) {
 	w.Write(result)
 }
 
+func toTag(tags models.Tag) tag {
+	return tag{
+		Id:    tags.ID,
+		Title: tags.Title,
+	}
+}
+
+func toTags(tags []models.Tag) []tag {
+	var t []tag
+	for _, v := range tags {
+		t = append(t, toTag(v))
+	}
+	return t
+}
+
 func toPost(v models.Post) outputPost {
+	tags := toTags(v.Tags)
 	return outputPost{
-		ID:       v.ID,
-		Title:    v.Title,
-		Content:  v.Content,
-		UserID:   v.UserID,
-		Creat_at: v.Creat_at,
+		ID:         v.ID,
+		Title:      v.Title,
+		CategoryID: v.CatergoryID,
+		Tags:       tags,
+		Content:    v.Content,
+		UserID:     v.UserID,
+		Creat_at:   v.Creat_at,
 	}
 }
 

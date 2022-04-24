@@ -26,8 +26,8 @@ func (puc *PostUseCase) GetAll() ([]models.Post, error) {
 	return puc.repository.GetAll()
 }
 
-func (puc *PostUseCase) GetByLike() ([]models.Post, error) {
-	return puc.repository.GetByLike()
+func (puc *PostUseCase) GetByLike(userid int) ([]models.Post, error) {
+	return puc.repository.GetByLike(userid)
 }
 func (puc *PostUseCase) GetUserPost(id int64) ([]models.Post, error) {
 	return puc.repository.GetUserPost(id)
