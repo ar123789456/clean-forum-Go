@@ -5,13 +5,16 @@ import (
 	"forum/comment/repository/sqlite"
 	"forum/comment/usecase"
 	"net/http"
+
+	//midleware
+	m "forum/auth/delivery/http"
 )
 
-func RegisterPost(db *sql.DB, mux *http.ServeMux) {
+func RegisterPost(db *sql.DB, mux *http.ServeMux, mid m.Authentication) {
 	repo := sqlite.NewRepository(db)
 	usecase := usecase.NewUsecase(repo)
 	handler := NewHandler(usecase)
 	mux.HandleFunc("/comment/", handler.GetAll)
-	mux.HandleFunc("/comment/new", handler.NewComment)
-	mux.HandleFunc("/comment/delete", handler.Delete)
+	mux.Handle("/comment/new", mid.Authentication(http.HandlerFunc(handler.NewComment)))
+	mux.Handle("/comment/delete", mid.Authentication(http.HandlerFunc(handler.Delete)))
 }

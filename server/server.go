@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"log"
 	"net/http"
+	"time"
 
 	//handlers
 	handlerAuth "forum/auth/delivery/http"
@@ -19,15 +20,19 @@ import (
 func Run() {
 	db := InitDB()
 	mux := http.NewServeMux()
+	//midleware
+	mid := handlerAuth.NewAuthentication(db)
 	//Register handlers
 	handlerAuth.RegisterAuth(db, mux)
-	handlerPost.RegisterPost(db, mux)
-	handlerLike.RegisterLike(db, mux)
-	handlerComment.RegisterPost(db, mux)
-	handlerTag.RegisterTag(db, mux)
-	handlerCategory.RegisterCategory(db, mux)
+	handlerPost.RegisterPost(db, mux, *mid)
+	handlerLike.RegisterLike(db, mux, *mid)
+	handlerComment.RegisterPost(db, mux, *mid)
+	handlerTag.RegisterTag(db, mux, *mid)
+	handlerCategory.RegisterCategory(db, mux, mid)
 
-	err := http.ListenAndServe("localhost:8080", mux)
+	handler := Logging(mux)
+
+	err := http.ListenAndServe("localhost:8080", handler)
 	log.Println(err)
 }
 
@@ -61,6 +66,14 @@ func migrate(db *sql.DB, query string) {
 		panic(err)
 	}
 
+}
+
+func Logging(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+		start := time.Now()
+		next.ServeHTTP(w, req)
+		log.Printf("%s %s %s", req.Method, req.RequestURI, time.Since(start))
+	})
 }
 
 const Users string = `
