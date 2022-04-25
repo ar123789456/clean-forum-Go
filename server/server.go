@@ -10,6 +10,7 @@ import (
 	handlerComment "forum/comment/delivery/http"
 	handlerLike "forum/like/delivery/http"
 	handlerPost "forum/post/delivery/http"
+	handlerTag "forum/tag/delivery/http"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -22,6 +23,7 @@ func Run() {
 	handlerPost.RegisterPost(db, mux)
 	handlerLike.RegisterLike(db, mux)
 	handlerComment.RegisterPost(db, mux)
+	handlerTag.RegisterTag(db, mux)
 
 	err := http.ListenAndServe("localhost:8080", mux)
 	log.Println(err)
