@@ -7,6 +7,7 @@ import (
 
 	//handlers
 	handlerAuth "forum/auth/delivery/http"
+	handlerCategory "forum/category/delivery/http"
 	handlerComment "forum/comment/delivery/http"
 	handlerLike "forum/like/delivery/http"
 	handlerPost "forum/post/delivery/http"
@@ -24,6 +25,7 @@ func Run() {
 	handlerLike.RegisterLike(db, mux)
 	handlerComment.RegisterPost(db, mux)
 	handlerTag.RegisterTag(db, mux)
+	handlerCategory.RegisterCategory(db, mux)
 
 	err := http.ListenAndServe("localhost:8080", mux)
 	log.Println(err)
@@ -41,6 +43,8 @@ func InitDB() *sql.DB {
 	migrate(DB, Comments)
 	migrate(DB, Tags)
 	migrate(DB, TagPosts)
+	migrate(DB, Categories)
+	migrate(DB, CategoryPost)
 	return DB
 }
 
@@ -131,5 +135,24 @@ CREATE TABLE  IF NOT EXISTS "tag_posts" (
 	FOREIGN KEY("id_post") REFERENCES "posts"("id"),
 	FOREIGN KEY("id_tag") REFERENCES "tags"("id"),
 	PRIMARY KEY("id" AUTOINCREMENT)
+);
+`
+const Categories string = `
+CREATE TABLE IF NOT EXISTS "categories" (
+	"id"	INTEGER NOT NULL UNIQUE,
+	"title"	TEXT NOT NULL UNIQUE,
+	"description"	TEXT NOT NULL UNIQUE,
+	PRIMARY KEY("id" AUTOINCREMENT)
+);
+`
+
+const CategoryPost string = `
+CREATE TABLE IF NOT EXISTS "category_posts" (
+	"id"	INTEGER NOT NULL UNIQUE,
+	"id_category"	INTEGER NOT NULL,
+	"id_post"	INTEGER NOT NULL,
+	PRIMARY KEY("id" AUTOINCREMENT),
+	FOREIGN KEY("id_post") REFERENCES "posts"("id"),
+	FOREIGN KEY("id_category") REFERENCES "categories"("id")
 );
 `
