@@ -31,7 +31,7 @@ func (a *Authentication) Authentication(next http.Handler) http.Handler {
 		}
 		user, err := a.usecase.ParseByToken(c.Value)
 		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 		c, err = r.Cookie("user_id")

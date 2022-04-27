@@ -46,7 +46,7 @@ func (ur *UserRepository) Update(user models.User) error {
 func (ur *UserRepository) GetByToken(uuid string) (*models.User, error) {
 	user := models.User{}
 	err := ur.db.QueryRow(
-		"SELECT ID, NicName, Email, Password FROM user WHERE NicName=?", uuid).Scan(
+		"SELECT ID, NicName, Email, Password FROM user WHERE Token=?", uuid).Scan(
 		&user.ID, &user.Username, &user.Email, &user.Password)
 	return &user, err
 }

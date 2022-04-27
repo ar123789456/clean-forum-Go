@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.js"></script>
+
+    <title>Document</title>
+</head>
+
+<body>
+    <div id="header"></div>
+    <div id="result"></div>
+    <script type="module" src="js/entry.js"></script>
+    <script id="main" type="text/template">
+        <div>
+            {{#each allpost}}
+            <div>
+                <h3>{{"title"}}</h3>
+                <h4>{{"category"}}</h4>
+                <p>
+                    {{#each "tags"}}
+                    <div>{{this}}</div>
+                    {{/each}}
+                </p>
+                <p>{{"content"}}</p>
+            </div>
+            {{/each}}
+        </div>
+    </script>
+
+    <script id="signup" type="text/template">
+        <div>
+            <form name="signupForm">
+                <input type="text">
+                <input type="text">
+                <input type="password">
+                <input type="submit">
+            </form>
+        </div>
+    </script>
+
+</body>
+
+</html>
