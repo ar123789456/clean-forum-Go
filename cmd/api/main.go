@@ -1,11 +1,13 @@
 package main
 
 import (
+	"forum/client"
 	"forum/server"
 	"log"
 )
 
 func main() {
-	server.Run()
+	go server.Run()
+	client.Run()
 	log.Println("serv")
 }

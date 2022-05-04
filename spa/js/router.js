@@ -19,7 +19,7 @@ function handleHash() {
 export default {
     init() {
         addEventListener('hashchange', handleHash)
-        addEventListener('submit', handleHash)
+            // addEventListener('submit', handleHash)
 
         handleHash();
     }

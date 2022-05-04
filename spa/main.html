@@ -31,12 +31,28 @@
         </div>
     </script>
 
-    <script id="signup" type="text/template">
+    <script name="signup" id="signup" type="text/template">
         <div>
-            <form name="signupForm">
-                <input type="text">
-                <input type="text">
-                <input type="password">
+            <form name="signupform">
+                <h3>Name</h3>
+                <input name="name" type="text">
+                <h3>Email</h3>
+                <input name="email" type="text">
+                <h3>Password</h3>
+                <input name="password" type="password">
+                <input type="submit">
+            </form>
+        </div>
+    </script>
+
+    <script name="signin" id="signin" type="text/template">
+        <div>
+            <form name="signinform">
+                <h3>Name or Email</h3>
+                <input name="name" type="text">
+
+                <h3>Password</h3>
+                <input name="password" type="password">
                 <input type="submit">
             </form>
         </div>

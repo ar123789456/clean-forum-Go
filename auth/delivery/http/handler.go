@@ -2,8 +2,10 @@ package http
 
 import (
 	"encoding/json"
+	"fmt"
 	"forum/auth"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"strconv"
 )
@@ -35,22 +37,26 @@ func (h *Handler) SignIn(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+	fmt.Println(p)
 
 	token, id, err := h.usecase.SignIn(p.Name, p.Email, p.Password)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+
 	cookie := http.Cookie{
-		Name:   "Session_token",
+		Name:   "session_token",
 		Value:  token,
 		MaxAge: 300,
 	}
 	cookieid := http.Cookie{
-		Name:  "user_id",
-		Value: strconv.Itoa(id),
-		// Secure: true,
+		Name:   "user_id",
+		Value:  strconv.Itoa(id),
+		MaxAge: 300,
 	}
+	log.Println("her", cookie.Value)
+
 	http.SetCookie(w, &cookie)
 	http.SetCookie(w, &cookieid)
 }

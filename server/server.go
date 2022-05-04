@@ -20,7 +20,7 @@ import (
 func Run() {
 	db := InitDB()
 	mux := http.NewServeMux()
-	//midleware
+	//middleware
 	mid := handlerAuth.NewAuthentication(db)
 	//Register handlers
 	handlerAuth.RegisterAuth(db, mux)
@@ -70,6 +70,14 @@ func migrate(db *sql.DB, query string) {
 
 func Logging(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+		w.Header().Set("Access-Control-Allow-Credentials", "true")
+		w.Header().Set("Content-Type", "aplication/json")
+		if req.Method == http.MethodOptions {
+			log.Printf("%s %s %s", req.Method, req.RequestURI, time.Since(time.Now()))
+			return
+		}
 		start := time.Now()
 		next.ServeHTTP(w, req)
 		log.Printf("%s %s %s", req.Method, req.RequestURI, time.Since(start))
