@@ -21,6 +21,7 @@ func Run() {
 	fs := http.FileServer(http.Dir("../../web/static"))
 
 	mux.Handle("/static/", http.StripPrefix("/static/", fs))
+	// mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("../../web/static"))))
 	srv := &http.Server{
 		Handler:      mux,
 		Addr:         ":6969",
