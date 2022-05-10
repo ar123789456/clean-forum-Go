@@ -5,15 +5,19 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.js"></script>
+    <script type="module" src="static/entry.js"></script>
 
     <title>Document</title>
 </head>
 
 <body>
+    <h1>hello</h1>
+
     <div id="header"></div>
+
     <div id="result"></div>
-    <script type="module" src="js/entry.js"></script>
+
+
     <script id="main" type="text/template">
         <div>
             {{#each allpost}}
@@ -56,6 +60,14 @@
                 <input type="submit">
             </form>
         </div>
+    </script>
+
+    <script name="user" id="user" type="text/template">
+        <p>USER</p>
+    </script>
+
+    <script name="singlepost" id="singlepost" type="text/template">
+        <p>singlepost</p>
     </script>
 
 </body>
