@@ -32,13 +32,43 @@ func (pr *PostRepository) Get(id int64) (domain.Post, error) {
 		&post.ID, &post.Title, &post.Content, &post.Creat_at, &post.Update_to, &post.UserID)
 	return post, err
 }
-func (pr *PostRepository) GetAll() ([]domain.Post, error) {
-	rows, err := pr.db.Query("SELECT * FROM posts")
+func (pr *PostRepository) GetPosts(limit int, offset int, cat string) ([]domain.Post, error) {
+	if cat == "" {
+		rows, err := pr.db.Query(`SELECT * FROM posts ORDER BY create_at DESC LIMIT ? OFFSET ?`, limit, offset)
+		var posts []domain.Post
+		if err == nil {
+			for rows.Next() {
+				var currentPost domain.Post
+				err = rows.Scan(
+					&currentPost.ID,
+					&currentPost.Title,
+					&currentPost.Content,
+					&currentPost.Creat_at,
+					&currentPost.Update_to,
+					&currentPost.UserID,
+				)
+				if err != nil {
+					return nil, err
+				}
+				posts = append(posts, currentPost)
+			}
+			return posts, err
+		}
+		return posts, err
+	}
+
+	rows, err := pr.db.Query(`SELECT * FROM posts 
+         INNER JOIN category_posts cp on posts.id = cp.id_post
+         INNER JOIN categories c on cp.id_category = c.id
+         WHERE c.title=?
+         ORDER BY posts.create_at DESC
+         LIMIT ? OFFSET ?
+         `, cat, limit, offset)
 	var posts []domain.Post
 	if err == nil {
 		for rows.Next() {
 			var currentPost domain.Post
-			rows.Scan(
+			err = rows.Scan(
 				&currentPost.ID,
 				&currentPost.Title,
 				&currentPost.Content,
@@ -46,6 +76,9 @@ func (pr *PostRepository) GetAll() ([]domain.Post, error) {
 				&currentPost.Update_to,
 				&currentPost.UserID,
 			)
+			if err != nil {
+				return nil, err
+			}
 			posts = append(posts, currentPost)
 		}
 		return posts, err
@@ -58,7 +91,7 @@ func (pr *PostRepository) GetByLike(userid int) ([]domain.Post, error) {
 	if err == nil {
 		for rows.Next() {
 			var currentPost domain.Post
-			rows.Scan(
+			err := rows.Scan(
 				&currentPost.ID,
 				&currentPost.Title,
 				&currentPost.Content,
@@ -66,6 +99,9 @@ func (pr *PostRepository) GetByLike(userid int) ([]domain.Post, error) {
 				&currentPost.Update_to,
 				&currentPost.UserID,
 			)
+			if err != nil {
+				return nil, err
+			}
 			posts = append(posts, currentPost)
 		}
 		return posts, err

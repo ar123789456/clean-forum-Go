@@ -28,7 +28,7 @@ func Run() {
 	mid := http2.NewAuthentication(db)
 	//Register handlers
 	http2.RegisterAuth(db, mux, t)
-	handlerPost.RegisterPost(db, mux, *mid)
+	handlerPost.RegisterPost(db, mux, *mid, t)
 	handlerLike.RegisterLike(db, mux, *mid)
 	handlerComment.RegisterPost(db, mux, *mid)
 	handlerTag.RegisterTag(db, mux, *mid)

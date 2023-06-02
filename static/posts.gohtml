@@ -1,0 +1,28 @@
+{{define "pages/login"}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Posts</title>
+    Title      string `json:"title"`
+    CategoryID int    `json:"category"`
+    Tags       []tag  `json:"tags"`
+    Content    string `json:"content"`
+    ID         int    `json:"id"`
+    UserID     int    `json:"user_id"`
+    Creat_at   string `json:"create_at"`
+</head>
+<body>
+{{template "components/toast"}}
+{{template "components/navbar"}}
+{{ range $post := .Posts }}
+    <div class="post">
+        <h1>{{ $post.Title }}</h1>
+        <p>{{ $post.Content }}</p>
+        <p>{{ $post.Creat_at }}</p>
+        <p>{{ $post.CategoryID }}</p>
+    </div>
+{{ end }}
+</body>
+</html>
+{{end}}

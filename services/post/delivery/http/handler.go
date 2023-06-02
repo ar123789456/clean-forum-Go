@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"forum/domain"
 	"forum/services/post"
+	"html/template"
+	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -83,23 +85,46 @@ func (h *Handler) NewPost(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (h *Handler) GetAll(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		return
+func (h *Handler) GetPosts(t *template.Template) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodGet {
+			w.WriteHeader(http.StatusMethodNotAllowed)
+			return
+		}
+		var info struct {
+			Posts []domain.Post
+			Error string
+		}
+		q := r.URL.Query()
+		category := q.Get("category")
+
+		limit, err := strconv.Atoi(q.Get("limit"))
+		if err != nil {
+			info.Error = "need limit, and limit must be int"
+			return
+		}
+		offset, err := strconv.Atoi(q.Get("offset"))
+		if err != nil {
+			info.Error = "need offset, and offset must be int"
+			return
+		}
+		if limit < 0 || offset < 0 {
+			info.Error = "limit and offset must be positive"
+			return
+		}
+		allPosts, err := h.usecase.GetPosts(limit, offset, category)
+		if err != nil {
+			log.Println(err)
+			info.Error = "error in get posts"
+			return
+		}
+		info.Posts = allPosts
+		err = t.ExecuteTemplate(w, "pages/posts", info)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
 	}
-	allpost, err := h.usecase.GetAll()
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	jsonPosts := toPosts(allpost)
-	result, err := json.Marshal(&jsonPosts)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	w.Write(result)
 }
 
 func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
