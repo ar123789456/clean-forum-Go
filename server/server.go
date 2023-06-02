@@ -2,33 +2,40 @@ package server
 
 import (
 	"database/sql"
+	http2 "forum/services/auth/delivery/http"
+	handlerCategory "forum/services/category/delivery/http"
+	handlerComment "forum/services/comment/delivery/http"
+	handlerLike "forum/services/like/delivery/http"
+	handlerPost "forum/services/post/delivery/http"
+	handlerTag "forum/services/tag/delivery/http"
+	"html/template"
 	"log"
 	"net/http"
 	"time"
-
-	//handlers
-	handlerAuth "forum/auth/delivery/http"
-	handlerCategory "forum/category/delivery/http"
-	handlerComment "forum/comment/delivery/http"
-	handlerLike "forum/like/delivery/http"
-	handlerPost "forum/post/delivery/http"
-	handlerTag "forum/tag/delivery/http"
 
 	_ "github.com/mattn/go-sqlite3"
 )
 
 func Run() {
 	db := InitDB()
+
+	// load templates
+	t := template.Must(template.ParseGlob("./static/*.gohtml"))
+	t = template.Must(t.ParseGlob("./static/components/*.gohtml"))
+
 	mux := http.NewServeMux()
 	//middleware
-	mid := handlerAuth.NewAuthentication(db)
+	mid := http2.NewAuthentication(db)
 	//Register handlers
-	handlerAuth.RegisterAuth(db, mux)
+	http2.RegisterAuth(db, mux, t)
 	handlerPost.RegisterPost(db, mux, *mid)
 	handlerLike.RegisterLike(db, mux, *mid)
 	handlerComment.RegisterPost(db, mux, *mid)
 	handlerTag.RegisterTag(db, mux, *mid)
 	handlerCategory.RegisterCategory(db, mux, mid)
+
+	//Register static handlers
+	mux.Handle("/static/", http.FileServer(http.Dir("../../static")))
 
 	handler := Logging(mux)
 
@@ -68,19 +75,22 @@ func migrate(db *sql.DB, query string) {
 
 }
 
+type statusRecorder struct {
+	http.ResponseWriter
+	status int
+}
+
+func (rec *statusRecorder) WriteHeader(code int) {
+	rec.status = code
+	rec.ResponseWriter.WriteHeader(code)
+}
+
 func Logging(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
-		w.Header().Set("Access-Control-Allow-Credentials", "true")
-		w.Header().Set("Content-Type", "aplication/json")
-		if req.Method == http.MethodOptions {
-			log.Printf("%s %s %s", req.Method, req.RequestURI, time.Since(time.Now()))
-			return
-		}
+		rec := statusRecorder{w, 200}
 		start := time.Now()
-		next.ServeHTTP(w, req)
-		log.Printf("%s %s %s", req.Method, req.RequestURI, time.Since(start))
+		next.ServeHTTP(&rec, req)
+		log.Printf("%s %d %s %s", req.Method, rec.status, req.RequestURI, time.Since(start))
 	})
 }
 

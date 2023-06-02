@@ -1,0 +1,78 @@
+{{define "pages/registration"}}
+
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Registration</title>
+    </head>
+    <body>
+    {{template "components/toast"}}
+    <h1>Registration</h1>
+    <div>
+        <form action="api/registration" method="post">
+            <label for="username">Username:</label>
+            <input type="text" name="username" id="username" required>
+            <br>
+            <label for="email">Email:</label>
+            <input type="text" name="username" id="email" required>
+            <br>
+            <label for="password">Password:</label>
+            <input type="password" name="password" id="password" required>
+            <br>
+            <label for="password2">Confirm Password:</label>
+            <input type="password" name="password2" id="password2" required>
+            <br>
+            <input type="submit" value="Register" id="submit">
+        </form>
+    </div>
+    <script type="application/javascript">
+        document.getElementById("submit").addEventListener("click", (ev) => {
+            ev.preventDefault()
+            let username = document.getElementById("username").value
+            let email = document.getElementById("email").value
+            let password = document.getElementById("password").value
+            let password2 = document.getElementById("password2").value
+            if (username.trim() === "") {
+                Toast("Username cannot be empty")
+                return
+            }
+            if (email.trim() === "") {
+                Toast("Email cannot be empty")
+                return
+            }
+            if (password.trim() === "") {
+                Toast("Password cannot be empty")
+                return
+            }
+            if (password !== password2) {
+                Toast("Passwords do not match")
+                return
+            }
+
+            fetch("api/registration", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    name: username,
+                    email: email,
+                    password: password
+                })
+            }).then((res) => {
+                if (res.status === 200) {
+                    Toast("Registration successful")
+                    window.location.href = "/login"
+                } else {
+                    Toast("Registration failed")
+                }
+            }).catch((err) => {
+                Toast("Registration failed")
+            })
+        })
+    </script>
+    </body>
+    </html>
+
+{{end}}

@@ -1,0 +1,60 @@
+{{define "pages/login"}}
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Login</title>
+    </head>
+    <body>
+    {{template "components/toast"}}
+    <h1>Login</h1>
+    <div>
+        <form action="api/login" method="post">
+            <label for="username">Username:</label>
+            <input type="text" name="username" id="username" required>
+            <br>
+            <label for="password">Password:</label>
+            <input type="password" name="password" id="password" required>
+            <br>
+            <input type="submit" value="Login" id="submit">
+        </form>
+    </div>
+    <p>Don't have an account? <a href="/registration">Register</a></p>
+    <script type="application/javascript">
+        document.getElementById("submit").addEventListener("click", (ev) => {
+            ev.preventDefault()
+            let username = document.getElementById("username").value
+            let password = document.getElementById("password").value
+            if (username.trim() === "") {
+                Toast("Username cannot be empty")
+                return
+            }
+            if (password.trim() === "") {
+                Toast("Password cannot be empty")
+                return
+            }
+
+            fetch("/api/login", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                credentials: "same-origin",
+                body: JSON.stringify({
+                    name_or_email: username,
+                    password: password
+                })
+            }).then((res) => {
+                if (res.status === 200) {
+                    window.location.href = "/"
+                } else {
+                    Toast("Login failed")
+                }
+            }).catch((err) => {
+                Toast("Login failed")
+            })
+        })
+    </script>
+    </body>
+    </html>
+{{end}}
